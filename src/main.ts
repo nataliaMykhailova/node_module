@@ -1,5 +1,7 @@
 import express, { NextFunction, Request, Response } from "express";
+import mongoose from "mongoose";
 
+import { configs } from "./configs/configs";
 import { ApiError } from "./errors/api-error";
 import { userRouter } from "./routers/user.router";
 
@@ -9,10 +11,9 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/users", userRouter);
 
-const PORT = 3000;
-
-app.listen(PORT, () => {
-  console.log(`Listening on port ${PORT}`);
+app.listen(configs.APP_PORT, configs.APP_HOST, async () => {
+  await mongoose.connect(configs.MONGO_URL);
+  console.log(`Listening on port ${configs.APP_PORT}`);
 });
 
 app.use(

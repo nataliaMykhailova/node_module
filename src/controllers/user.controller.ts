@@ -7,7 +7,7 @@ class UserController {
   public async getList(req: Request, res: Response, next: NextFunction) {
     try {
       const result = await userService.getList();
-      res.status(200).json(result);
+      res.json(result);
     } catch (e) {
       next(e);
     }
@@ -24,16 +24,16 @@ class UserController {
   }
   public async getOneUser(req: Request, res: Response, next: NextFunction) {
     try {
-      const id = Number(req.params.id);
+      const id = req.params.userId;
       const result = await userService.getOneUser(id);
-      res.status(200).json(result);
+      res.json(result);
     } catch (e) {
       next(e);
     }
   }
   public async update(req: Request, res: Response, next: NextFunction) {
     try {
-      const id = Number(req.params.id);
+      const id = req.params.userId;
       const dto = req.body as IUser;
       const result = await userService.update(id, dto);
       res.status(201).json(result);
@@ -41,10 +41,10 @@ class UserController {
       next(e);
     }
   }
-  public async delete(req: Request, res: Response, next: NextFunction) {
+  public async deleteById(req: Request, res: Response, next: NextFunction) {
     try {
-      const id = Number(req.params.id);
-      await userService.delete(id);
+      const userId = req.params.userId;
+      await userService.deleteById(userId);
       res.sendStatus(204);
     } catch (e) {
       next(e);
