@@ -79,18 +79,23 @@ export class UserValidator {
     });
 
   public static createUser = Joi.object({
-    username: UserValidator.username.required(),
-    age: UserValidator.age.required(),
-    email: UserValidator.email.required(),
-    password: UserValidator.password.required(),
-    phone: UserValidator.phone.required(),
-    role: UserValidator.role.required(),
+    username: this.username.required(),
+    age: this.age.required(),
+    email: this.email.required(),
+    password: this.password.required(),
+    phone: this.phone.required(),
+    role: this.role.required(),
   });
 
   public static updateUser = Joi.object({
-    username: UserValidator.username,
-    age: UserValidator.age,
-    email: UserValidator.email,
-    phone: UserValidator.phone,
+    username: this.username,
+    age: this.age,
+    email: this.email,
+    phone: this.phone,
+  });
+
+  public static loginUser = Joi.object({
+    email: this.email.required(),
+    password: this.password.required(),
   });
 }

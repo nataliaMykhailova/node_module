@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { ObjectSchema, Schema } from "joi";
+import { ObjectSchema } from "joi";
 import { isObjectIdOrHexString } from "mongoose";
 
 import { ApiError } from "../errors/api-error";
@@ -31,7 +31,7 @@ class CommonMiddleware {
       }
     };
   }
-  public isValidUpdateDto(schema: Schema, allowedFields: string[]) {
+  public isValidUpdateDto(validator: ObjectSchema, allowedFields: string[]) {
     return (req: Request, res: Response, next: NextFunction) => {
       try {
         const updateFields = Object.keys(req.body);
@@ -44,7 +44,7 @@ class CommonMiddleware {
             400,
           );
         }
-        const { error } = schema.validate(req.body);
+        const { error } = validator.validate(req.body);
         if (error) {
           throw new ApiError(
             error.details.map((detail) => detail.message).join(", "),

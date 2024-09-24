@@ -7,28 +7,23 @@ class UserService {
     return await userRepository.getList();
   }
 
-  public async create(dto: IUser): Promise<IUser> {
-    await this.isEmailExist(dto.email);
-    return await userRepository.create(dto);
+  public async getMe(id: string): Promise<IUser> {
+    return await userRepository.getOneUser(id);
+  }
+  public async getOneUser(id: string): Promise<IUser> {
+    return await userRepository.getOneUser(id);
   }
 
-  public async getOneUser(userId: string): Promise<IUser> {
-    return await userRepository.getOneUser(userId);
+  public async updateMe(id: string, dto: IUser): Promise<IUser> {
+    return await userRepository.update(id, dto);
   }
 
-  public async update(userId: string, dto: IUser): Promise<IUser> {
-    return await userRepository.update(userId, dto);
-  }
-
-  public async deleteById(userId: string): Promise<void> {
-    return await userRepository.deleteById(userId);
-  }
-
-  private async isEmailExist(email: string): Promise<void> {
-    const user = await userRepository.getByParams({ email });
-    if (user) {
-      throw new ApiError("Email already exist!!!", 409);
+  public async deleteMe(id: string): Promise<void> {
+    const user = await userRepository.getOneUser(id);
+    if (!user) {
+      throw new ApiError("User not found", 404);
     }
+    await userRepository.delete(id);
   }
 }
 

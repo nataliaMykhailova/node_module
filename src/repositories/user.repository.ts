@@ -10,18 +10,18 @@ class UserRepository {
     return await UserModel.create(dto);
   }
 
-  public async getOneUser(userId: string): Promise<IUser> {
-    return await UserModel.findById(userId);
+  public async getOneUser(id: string): Promise<IUser> {
+    return await UserModel.findById(id);
   }
 
-  public async update(userId: string, dto: IUser): Promise<IUser> {
-    return await UserModel.findByIdAndUpdate(userId, dto, {
+  public async update(id: string, dto: IUser): Promise<IUser> {
+    return await UserModel.findByIdAndUpdate(id, dto, {
       returnDocument: "after",
     });
   }
 
-  public async deleteById(id: string): Promise<void> {
-    await UserModel.deleteOne({ _id: id });
+  public async delete(id: string): Promise<void> {
+    await UserModel.findByIdAndDelete(id);
   }
   public async getByParams(params: Partial<IUser>): Promise<IUser> {
     return await UserModel.findOne(params);
