@@ -6,8 +6,8 @@ class PasswordService {
   }
 
   public async comparePassword(
-    password: string,
-    hash: string,
+      password: string,
+      hash: string,
   ): Promise<boolean> {
     return await bcrypt.compare(password, hash);
   }

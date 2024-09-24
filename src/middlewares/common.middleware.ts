@@ -23,8 +23,8 @@ class CommonMiddleware {
       const { error } = validator.validate(req.body);
       if (error) {
         throw new ApiError(
-          error.details.map((el) => el.message).join(","),
-          400,
+            error.details.map((el) => el.message).join(","),
+            400,
         );
       } else {
         next();
@@ -36,19 +36,19 @@ class CommonMiddleware {
       try {
         const updateFields = Object.keys(req.body);
         const unknownFields = updateFields.filter(
-          (field) => !allowedFields.includes(field),
+            (field) => !allowedFields.includes(field),
         );
         if (unknownFields.length > 0) {
           throw new ApiError(
-            `Cannot update fields: ${unknownFields.join(", ")}. These fields are not allowed to be updated.`,
-            400,
+              `Cannot update fields: ${unknownFields.join(", ")}. These fields are not allowed to be updated.`,
+              400,
           );
         }
         const { error } = validator.validate(req.body);
         if (error) {
           throw new ApiError(
-            error.details.map((detail) => detail.message).join(", "),
-            400,
+              error.details.map((detail) => detail.message).join(", "),
+              400,
           );
         }
         next();
