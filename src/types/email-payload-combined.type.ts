@@ -1,4 +1,4 @@
 export type EmailPayloadCombinedType = {
-    name?: string;
-    actionToken?: string;
+  name?: string;
+  actionToken?: string;
 };
