@@ -65,14 +65,10 @@ class AuthMiddleware {
   public checkActionToken(type: ActionTokenTypeEnum) {
     return async (req: Request, res: Response, next: NextFunction) => {
       try {
-        const header = req.headers.authorization;
-        if (!header || !header.startsWith("Bearer ")) {
-          throw new ApiError(
-            "Token is not provided or is incorrectly formatted",
-            401,
-          );
+        const actionToken = req.body.token;
+        if (!actionToken) {
+          throw new ApiError("Token is not provided", 401);
         }
-        const actionToken = header.split(" ")[1];
         const payload = tokenService.checkActionToken(actionToken, type);
 
         const entity =
@@ -80,8 +76,7 @@ class AuthMiddleware {
         if (!entity) {
           throw new ApiError("Token is not valid", 401);
         }
-
-        res.locals.jwtPayload = payload;
+        req.res.locals.jwtPayload = payload;
         next();
       } catch (e) {
         next(e);

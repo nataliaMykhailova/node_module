@@ -78,10 +78,9 @@ class TokenService {
           secret = configs.JWT_ACTION_VERIFY_EMAIL_SECRET;
           break;
         default:
-          throw new ApiError("Action token type is not valid", 401);
+          throw new ApiError("Token type is not valid", 401);
       }
 
-      // Перевірка токена
       return jsonwebtoken.verify(token, secret) as ITokenPayload;
     } catch (error) {
       throw new ApiError("Token is not valid", 401);

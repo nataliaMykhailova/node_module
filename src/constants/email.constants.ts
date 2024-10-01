@@ -13,4 +13,8 @@ export const emailConstants = {
     subject: "Logout",
     template: "logout",
   },
+  [EmailType.OLD_VISIT]: {
+    subject: "Old visit",
+    template: "old-visit",
+  },
 };

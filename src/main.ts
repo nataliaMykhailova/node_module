@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
 
 import { configs } from "./configs/configs";
+import { jobRunner } from "./crons";
 import { ApiError } from "./errors/api-error";
 import { authRouter } from "./routers/auth.router";
 import { userRouter } from "./routers/user.router";
@@ -16,6 +17,7 @@ app.use("/auth", authRouter);
 app.listen(configs.APP_PORT, configs.APP_HOST, async () => {
   await mongoose.connect(configs.MONGO_URL);
   console.log(`Listening on port ${configs.APP_PORT}`);
+  jobRunner();
 });
 
 app.use(

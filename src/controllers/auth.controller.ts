@@ -4,6 +4,7 @@ import {
   IForgotResetPassword,
   IForgotSendEmail,
 } from "../interfaces/action-token.interface";
+import { IChangePassword } from "../interfaces/change-password.interface";
 import { ITokenPayload } from "../interfaces/token.interface";
 import { ILogin, IUser } from "../interfaces/user.interface";
 import { authService } from "../services/auth.service";
@@ -68,9 +69,9 @@ class AuthController {
   }
 
   public async forgotPasswordSet(
-      req: Request,
-      res: Response,
-      next: NextFunction,
+    req: Request,
+    res: Response,
+    next: NextFunction,
   ) {
     try {
       const dto = req.body as IForgotResetPassword;
@@ -86,6 +87,16 @@ class AuthController {
     try {
       const jwtPayload = req.res.locals.jwtPayload as ITokenPayload;
       await authService.verifyEmail(jwtPayload);
+      res.sendStatus(204);
+    } catch (e) {
+      next(e);
+    }
+  }
+  public async changePassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const jwtPayload = req.res.locals.jwtPayload as ITokenPayload;
+      const dto = req.body as IChangePassword;
+      await authService.changePassword(jwtPayload, dto);
       res.sendStatus(204);
     } catch (e) {
       next(e);

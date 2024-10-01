@@ -105,4 +105,8 @@ export class UserValidator {
   public static forgotPasswordSet = Joi.object({
     password: this.password.required(),
   });
+  public static changePassword = Joi.object({
+    oldPassword: this.password.required(),
+    newPassword: this.password.required(),
+  });
 }
