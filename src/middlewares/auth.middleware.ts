@@ -9,9 +9,9 @@ import { tokenService } from "../services/token.service";
 
 class AuthMiddleware {
   public async checkAccessToken(
-      req: Request,
-      res: Response,
-      next: NextFunction,
+    req: Request,
+    res: Response,
+    next: NextFunction,
   ) {
     try {
       const header = req.headers.authorization;
@@ -20,8 +20,8 @@ class AuthMiddleware {
       }
       const accessToken = header.split("Bearer ")[1];
       const payload = tokenService.checkToken(
-          accessToken,
-          TokenTypeEnum.ACCESS,
+        accessToken,
+        TokenTypeEnum.ACCESS,
       );
 
       const pair = await tokenRepository.findByParams({ accessToken });
@@ -36,9 +36,9 @@ class AuthMiddleware {
     }
   }
   public async checkRefreshToken(
-      req: Request,
-      res: Response,
-      next: NextFunction,
+    req: Request,
+    res: Response,
+    next: NextFunction,
   ) {
     try {
       const header = req.headers.authorization;
@@ -47,8 +47,8 @@ class AuthMiddleware {
       }
       const refreshToken = header.split("Bearer ")[1];
       const payload = tokenService.checkToken(
-          refreshToken,
-          TokenTypeEnum.REFRESH,
+        refreshToken,
+        TokenTypeEnum.REFRESH,
       );
 
       const pair = await tokenRepository.findByParams({ refreshToken });
@@ -68,21 +68,19 @@ class AuthMiddleware {
         const header = req.headers.authorization;
         if (!header || !header.startsWith("Bearer ")) {
           throw new ApiError(
-              "Token is not provided or is incorrectly formatted",
-              401,
+            "Token is not provided or is incorrectly formatted",
+            401,
           );
         }
-        const actionToken = header.split(" ")[1]; // Отримуємо токен з заголовка
-
+        const actionToken = header.split(" ")[1];
         const payload = tokenService.checkActionToken(actionToken, type);
 
         const entity =
-            await actionTokenRepository.getByActionToken(actionToken);
+          await actionTokenRepository.getByActionToken(actionToken);
         if (!entity) {
           throw new ApiError("Token is not valid", 401);
         }
 
-        // Збереження даних токена для подальшого використання
         res.locals.jwtPayload = payload;
         next();
       } catch (e) {

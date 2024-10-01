@@ -12,9 +12,9 @@ class TokenService {
       expiresIn: configs.JWT_ACCESS_EXPIRES_IN,
     });
     const refreshToken = jsonwebtoken.sign(
-        payload,
-        configs.JWT_REFRESH_SECRET,
-        { expiresIn: configs.JWT_REFRESH_EXPIRES_IN },
+      payload,
+      configs.JWT_REFRESH_SECRET,
+      { expiresIn: configs.JWT_REFRESH_EXPIRES_IN },
     );
     return {
       accessToken,
@@ -41,8 +41,8 @@ class TokenService {
     }
   }
   public async generateActionToken(
-      payload: ITokenPayload,
-      type: ActionTokenTypeEnum,
+    payload: ITokenPayload,
+    type: ActionTokenTypeEnum,
   ): Promise<string> {
     let secret: string;
     let expiresIn: string;
@@ -65,8 +65,8 @@ class TokenService {
   }
 
   public checkActionToken(
-      token: string,
-      type: ActionTokenTypeEnum,
+    token: string,
+    type: ActionTokenTypeEnum,
   ): ITokenPayload {
     try {
       let secret: string;
