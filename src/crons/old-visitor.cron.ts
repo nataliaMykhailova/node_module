@@ -13,6 +13,7 @@ const handler = async () => {
 
     await Promise.all(
       users.map(async (user) => {
+        console.log(user.email);
         await emailService.sendEmail(EmailType.OLD_VISIT, user.email, {
           name: user.username,
         });
@@ -24,4 +25,4 @@ const handler = async () => {
   }
 };
 
-export const oldVisitorCron = new CronJob("0 1 * * * *", handler);
+export const oldVisitorCron = new CronJob("0 * * * * *", handler);

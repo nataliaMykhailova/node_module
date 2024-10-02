@@ -19,7 +19,7 @@ class EmailService {
         pass: configs.SMTP_PASSWORD,
       },
       tls: {
-        rejectUnauthorized: false, // додано цю опцію
+        rejectUnauthorized: false,
       },
     });
     this.transporter.use(
