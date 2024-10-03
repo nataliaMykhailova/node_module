@@ -1,4 +1,5 @@
 import express, { NextFunction, Request, Response } from "express";
+import fileupload from "express-fileupload";
 import mongoose from "mongoose";
 
 import { configs } from "./configs/configs";
@@ -10,6 +11,7 @@ import { userRouter } from "./routers/user.router";
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(fileupload());
 
 app.use("/users", userRouter);
 app.use("/auth", authRouter);
@@ -19,6 +21,7 @@ app.listen(configs.APP_PORT, configs.APP_HOST, async () => {
   console.log(`Listening on port ${configs.APP_PORT}`);
   jobRunner();
 });
+
 
 app.use(
   "*",

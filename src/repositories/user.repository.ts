@@ -1,6 +1,6 @@
 import { IUser } from "../interfaces/user.interface";
+import { Token } from "../models/token.model";
 import { UserModel } from "../models/user.models";
-import {Token} from "../models/token.model";
 
 class UserRepository {
   public async getList(): Promise<IUser[]> {

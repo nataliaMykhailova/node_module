@@ -10,6 +10,7 @@ const UserSchema = new Schema(
     username: { type: String, required: true },
     age: { type: Number, required: true },
     email: { type: String, required: true, unique: true },
+    avatar: { type: String, required: false },
     password: { type: String, required: true },
     phone: { type: String, required: false },
     role: { type: String, enum: RoleEnum, required: true, default: "user" },

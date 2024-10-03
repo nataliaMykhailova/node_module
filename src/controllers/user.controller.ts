@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from "express";
+import { UploadedFile } from "express-fileupload";
 
 import { IUser } from "../interfaces/user.interface";
+import { UserPresenter } from "../presenters/user.presenter";
 import { userService } from "../services/user.service";
 
 class UserController {
@@ -14,8 +16,10 @@ class UserController {
   }
   public async getMe(req: Request, res: Response, next: NextFunction) {
     try {
-      const id = req.res.locals.jwtPayload.userId as string;
-      const result = await userService.getMe(id);
+      const userId = req.res.locals.jwtPayload.userId as string;
+      const user = await userService.getMe(userId);
+      const result = UserPresenter.toResponse(user);
+
       res.json(result);
     } catch (e) {
       next(e);
@@ -45,6 +49,27 @@ class UserController {
       const id = req.res.locals.jwtPayload.userId as string;
       await userService.deleteMe(id);
       res.sendStatus(204);
+    } catch (e) {
+      next(e);
+    }
+  }
+  public async uploadAvatar(req: Request, res: Response, next: NextFunction) {
+    try {
+      const avatar = req.files?.avatar as UploadedFile;
+      const userId = req.res.locals.jwtPayload.userId as string;
+      const user = await userService.uploadAvatar(userId, avatar);
+      const result = UserPresenter.toResponse(user);
+      res.status(201).json(result);
+    } catch (e) {
+      next(e);
+    }
+  }
+  public async deleteAvatar(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.res.locals.jwtPayload.userId as string;
+      const user = await userService.deleteAvatar(userId);
+      const result = UserPresenter.toResponse(user);
+      res.status(201).json(result);
     } catch (e) {
       next(e);
     }
