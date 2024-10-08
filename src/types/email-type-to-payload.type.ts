@@ -5,14 +5,21 @@ import { PickRequired } from "./pick-required.type";
 export type EmailTypeToPayloadType = {
   [EmailType.WELCOME]: PickRequired<
     EmailPayloadCombinedType,
-    "name" | "actionToken"
+    "name" | "actionToken" | "frontUrl"
   >;
 
   [EmailType.FORGOT_PASSWORD]: PickRequired<
     EmailPayloadCombinedType,
-    "name" | "actionToken"
+    "name" | "actionToken" | "frontUrl"
   >;
 
-  [EmailType.LOGOUT]: PickRequired<EmailPayloadCombinedType, "name">;
-  [EmailType.OLD_VISIT]: PickRequired<EmailPayloadCombinedType, "name">;
+  [EmailType.OLD_VISIT]: PickRequired<
+    EmailPayloadCombinedType,
+    "name" | "frontUrl"
+  >;
+
+  [EmailType.LOGOUT]: PickRequired<
+    EmailPayloadCombinedType,
+    "name" | "frontUrl"
+  >;
 };

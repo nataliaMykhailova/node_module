@@ -1,30 +1,35 @@
 import { Router } from "express";
+import { rateLimit } from "express-rate-limit";
 
+import { avatarConfig } from "../constants/image.constant";
 import { userController } from "../controllers/user.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import { commonMiddleware } from "../middlewares/common.middleware";
+import { fileMiddleware } from "../middlewares/file.middleware";
 import { UserValidator } from "../validators/user.validators";
-import {fileMiddleware} from "../middlewares/file.middleware";
-import {avatarConfig} from "../constants/image.constant";
 
 const router = Router();
 
-router.get("/", userController.getList);
+router.get(
+  "/",
+  rateLimit({ windowMs: 60 * 1000, limit: 5 }),
+  commonMiddleware.isQueryValid(UserValidator.listQuery),
+  userController.getList,
+);
 
-router.get("/me", authMiddleware.checkAccessToken, userController.getMe);
-router.put(
-  "/:id",
+router.get(
+  "/me",
+  rateLimit({ windowMs: 60 * 1000, limit: 5 }),
   authMiddleware.checkAccessToken,
-  commonMiddleware.isValidUpdateDto(UserValidator.updateUser, [
-    "username",
-    "age",
-    "email",
-    "phone",
-  ]),
+  userController.getMe,
+);
+router.put(
+  "/me",
+  authMiddleware.checkAccessToken,
+  commonMiddleware.isBodyValid(UserValidator.updateUser),
   userController.updateMe,
 );
 router.delete("/me", authMiddleware.checkAccessToken, userController.deleteMe);
-router.get("/:id", commonMiddleware.isValidId("id"), userController.getOneUser);
 router.post(
   "/me/avatar",
   authMiddleware.checkAccessToken,
@@ -35,6 +40,12 @@ router.delete(
   "/me/avatar",
   authMiddleware.checkAccessToken,
   userController.deleteAvatar,
+);
+
+router.get(
+  "/:userId",
+  commonMiddleware.isIdValid("userId"),
+  userController.getById,
 );
 
 export const userRouter = router;

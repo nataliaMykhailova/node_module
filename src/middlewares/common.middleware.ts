@@ -5,12 +5,12 @@ import { isObjectIdOrHexString } from "mongoose";
 import { ApiError } from "../errors/api-error";
 
 class CommonMiddleware {
-  public isValidId(paramName: string) {
-    return (request: Request, response: Response, next: NextFunction) => {
+  public isIdValid(paramName: string) {
+    return (req: Request, res: Response, next: NextFunction) => {
       try {
-        const id = request.params[paramName];
+        const id = req.params[paramName];
         if (!isObjectIdOrHexString(id)) {
-          throw new ApiError("Invalid ID", 400);
+          throw new ApiError("Invalid id", 400);
         }
         next();
       } catch (e) {
@@ -18,49 +18,22 @@ class CommonMiddleware {
       }
     };
   }
-  public isValidCreateDto(validator: ObjectSchema) {
-    return (req: Request, res: Response, next: NextFunction) => {
-      const { error } = validator.validate(req.body);
-      if (error) {
-        throw new ApiError(
-          error.details.map((el) => el.message).join(","),
-          400,
-        );
-      } else {
-        next();
-      }
-    };
-  }
-  public isValidUpdateDto(validator: ObjectSchema, allowedFields: string[]) {
-    return (req: Request, res: Response, next: NextFunction) => {
-      try {
-        const updateFields = Object.keys(req.body);
-        const unknownFields = updateFields.filter(
-          (field) => !allowedFields.includes(field),
-        );
-        if (unknownFields.length > 0) {
-          throw new ApiError(
-            `Cannot update fields: ${unknownFields.join(", ")}. These fields are not allowed to be updated.`,
-            400,
-          );
-        }
-        const { error } = validator.validate(req.body);
-        if (error) {
-          throw new ApiError(
-            error.details.map((detail) => detail.message).join(", "),
-            400,
-          );
-        }
-        next();
-      } catch (e) {
-        next(e);
-      }
-    };
-  }
+
   public isBodyValid(validator: ObjectSchema) {
     return async (req: Request, res: Response, next: NextFunction) => {
       try {
         req.body = await validator.validateAsync(req.body);
+        next();
+      } catch (e) {
+        next(new ApiError(e.details[0].message, 400));
+      }
+    };
+  }
+
+  public isQueryValid(validator: ObjectSchema) {
+    return async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        req.query = await validator.validateAsync(req.query);
         next();
       } catch (e) {
         next(new ApiError(e.details[0].message, 400));

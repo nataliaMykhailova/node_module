@@ -28,13 +28,14 @@ class AuthMiddleware {
       if (!pair) {
         throw new ApiError("Token is not valid", 401);
       }
+      req.res.locals.tokenId = pair._id;
       req.res.locals.jwtPayload = payload;
-      req.res.locals.jwtPayload.tokenId = pair._id;
       next();
     } catch (e) {
       next(e);
     }
   }
+
   public async checkRefreshToken(
     req: Request,
     res: Response,
@@ -62,10 +63,11 @@ class AuthMiddleware {
       next(e);
     }
   }
+
   public checkActionToken(type: ActionTokenTypeEnum) {
     return async (req: Request, res: Response, next: NextFunction) => {
       try {
-        const actionToken = req.body.token;
+        const actionToken = req.body?.token;
         if (!actionToken) {
           throw new ApiError("Token is not provided", 401);
         }
@@ -84,4 +86,5 @@ class AuthMiddleware {
     };
   }
 }
+
 export const authMiddleware = new AuthMiddleware();

@@ -1,0 +1,591 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "API for managing users and authentication",
+    "version": "1.0.0",
+    "title": "User and Auth API",
+    "contact": {
+      "email": "test@gmail.com"
+    }
+  },
+  "tags": [
+    {
+      "name": "user",
+      "description": "Operations related to users"
+    },
+    {
+      "name": "auth",
+      "description": "Operations related to authentication"
+    }
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "paths": {
+    "/users": {
+      "get": {
+        "tags": ["user"],
+        "summary": "Get list of users",
+        "description": "Fetch a paginated list of users",
+        "operationId": "getUserList",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "description": "Number of users to fetch"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "type": "integer",
+            "description": "Page number"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "type": "string",
+            "description": "Search query"
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "type": "string",
+            "enum": ["asc", "desc"],
+            "description": "Order of results"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/UserResponseList"
+            }
+          },
+          "400": {
+            "description": "Invalid query"
+          }
+        }
+      }
+    },
+    "/users/me": {
+      "get": {
+        "tags": ["user"],
+        "summary": "Get current user",
+        "description": "Fetch the currently authenticated user's information",
+        "operationId": "getMe",
+        "produces": ["application/json"],
+        "security": [{"jwt_token": []}],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/UserResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "put": {
+        "tags": ["user"],
+        "summary": "Update current user",
+        "description": "Update the information of the authenticated user",
+        "operationId": "updateMe",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "security": [{"jwt_token": []}],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserUpdateDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User updated successfully",
+            "schema": {
+              "$ref": "#/definitions/UserResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["user"],
+        "summary": "Delete current user",
+        "description": "Delete the authenticated user",
+        "operationId": "deleteMe",
+        "security": [{"jwt_token": []}],
+        "responses": {
+          "204": {
+            "description": "User deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/users/me/avatar": {
+      "post": {
+        "tags": ["user"],
+        "summary": "Upload avatar for current user",
+        "description": "Upload an avatar image for the authenticated user",
+        "operationId": "uploadAvatar",
+        "consumes": ["multipart/form-data"],
+        "security": [{"jwt_token": []}],
+        "parameters": [
+          {
+            "in": "formData",
+            "name": "avatar",
+            "required": true,
+            "type": "file",
+            "description": "The avatar image to upload"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Avatar uploaded successfully",
+            "schema": {
+              "$ref": "#/definitions/UserResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["user"],
+        "summary": "Delete avatar for current user",
+        "description": "Delete the avatar of the authenticated user",
+        "operationId": "deleteAvatar",
+        "security": [{"jwt_token": []}],
+        "responses": {
+          "204": {
+            "description": "Avatar deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/users/{userId}": {
+      "get": {
+        "tags": ["user"],
+        "summary": "Get user by ID",
+        "description": "Fetch user details by ID",
+        "operationId": "getUserById",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID of the user to fetch"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/UserResponse"
+            }
+          },
+          "404": {
+            "description": "User not found"
+          }
+        }
+      }
+    },
+    "/auth/sign-up": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Register a new user",
+        "description": "Sign up a new user",
+        "operationId": "signUpUser",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserSignUpDTO"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User registered successfully",
+            "schema": {
+              "$ref": "#/definitions/UserResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/auth/sign-in": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Login a user",
+        "description": "Login an existing user",
+        "operationId": "signInUser",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/LoginDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "schema": {
+              "$ref": "#/definitions/AuthResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Refresh token",
+        "description": "Refresh the authentication token",
+        "operationId": "refreshToken",
+        "security": [{"jwt_token": []}],
+        "responses": {
+          "200": {
+            "description": "Token refreshed successfully",
+            "schema": {
+              "$ref": "#/definitions/AuthResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Logout user",
+        "description": "Logout the authenticated user",
+        "operationId": "logoutUser",
+        "security": [{"jwt_token": []}],
+        "responses": {
+          "204": {
+            "description": "Logout successful"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/auth/logout-all": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Logout from all sessions",
+        "description": "Logs out the user from all active sessions",
+        "operationId": "logoutAllUser",
+        "security": [{"jwt_token": []}],
+        "responses": {
+          "204": {
+            "description": "Logout from all sessions successful"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/auth/forgot-password": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Forgot password",
+        "description": "Sends a reset password link to the user's email",
+        "operationId": "forgotPassword",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ForgotPasswordDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Password reset link sent"
+          },
+          "400": {
+            "description": "Invalid input"
+          }
+        }
+      },
+      "put": {
+        "tags": ["auth"],
+        "summary": "Reset password",
+        "description": "Resets the user's password",
+        "operationId": "resetPassword",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ResetPasswordDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Password reset successfully"
+          },
+          "400": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/auth/change-password": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Change password",
+        "description": "Change the password for the authenticated user",
+        "operationId": "changePassword",
+        "security": [{"jwt_token": []}],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ChangePasswordDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Password changed successfully"
+          },
+          "400": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/auth/verify": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Verify email",
+        "description": "Verifies the user's email",
+        "operationId": "verifyEmail",
+        "security": [{"jwt_token": []}],
+        "responses": {
+          "200": {
+            "description": "Email verified successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "jwt_token": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
+  "definitions": {
+    "UserSignUpDTO": {
+      "type": "object",
+      "required": ["username", "email", "password", "age"],
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "age": {
+          "type": "integer"
+        }
+      }
+    },
+    "LoginDTO": {
+      "type": "object",
+      "required": ["email", "password"],
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "ForgotPasswordDTO": {
+      "type": "object",
+      "required": ["email"],
+      "properties": {
+        "email": {
+          "type": "string"
+        }
+      }
+    },
+    "ResetPasswordDTO": {
+      "type": "object",
+      "required": ["token", "password"],
+      "properties": {
+        "token": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "ChangePasswordDTO": {
+      "type": "object",
+      "required": ["oldPassword", "newPassword"],
+      "properties": {
+        "oldPassword": {
+          "type": "string"
+        },
+        "newPassword": {
+          "type": "string"
+        }
+      }
+    },
+    "UserUpdateDTO": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "age": {
+          "type": "integer"
+        },
+        "email": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        }
+      }
+    },
+    "UserResponse": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "age": {
+          "type": "integer"
+        },
+        "email": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "avatar": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "isVerified": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "AuthResponse": {
+      "type": "object",
+      "properties": {
+        "accessToken": {
+          "type": "string"
+        },
+        "refreshToken": {
+          "type": "string"
+        }
+      }
+    },
+    "UserResponseList": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UserResponse"
+          }
+        },
+        "total": {
+          "type": "integer"
+        },
+        "page": {
+          "type": "integer"
+        },
+        "limit": {
+          "type": "integer"
+        }
+      }
+    }
+  }
+}

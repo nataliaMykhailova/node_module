@@ -10,25 +10,28 @@ const router = Router();
 
 router.post(
   "/sign-up",
-  commonMiddleware.isValidCreateDto(UserValidator.createUser),
+  commonMiddleware.isBodyValid(UserValidator.createUser),
   authController.signUp,
 );
 router.post(
   "/sign-in",
-  commonMiddleware.isValidCreateDto(UserValidator.loginUser),
+  commonMiddleware.isBodyValid(UserValidator.login),
   authController.signIn,
 );
+
 router.post(
   "/refresh",
   authMiddleware.checkRefreshToken,
-  authController.refreshToken,
+  authController.refresh,
 );
+
 router.post("/logout", authMiddleware.checkAccessToken, authController.logout);
 router.post(
   "/logout-all",
   authMiddleware.checkAccessToken,
   authController.logoutAll,
 );
+
 router.post(
   "/forgot-password",
   commonMiddleware.isBodyValid(UserValidator.forgotPassword),
@@ -40,11 +43,13 @@ router.put(
   authMiddleware.checkActionToken(ActionTokenTypeEnum.FORGOT_PASSWORD),
   authController.forgotPasswordSet,
 );
+
 router.post(
   "/verify",
   authMiddleware.checkActionToken(ActionTokenTypeEnum.VERIFY_EMAIL),
-  authController.verifyEmail,
+  authController.verify,
 );
+
 router.post(
   "/change-password",
   authMiddleware.checkAccessToken,

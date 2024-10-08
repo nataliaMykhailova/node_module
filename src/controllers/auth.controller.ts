@@ -4,7 +4,6 @@ import {
   IForgotResetPassword,
   IForgotSendEmail,
 } from "../interfaces/action-token.interface";
-import { IChangePassword } from "../interfaces/change-password.interface";
 import { ITokenPayload } from "../interfaces/token.interface";
 import { ILogin, IUser } from "../interfaces/user.interface";
 import { authService } from "../services/auth.service";
@@ -29,35 +28,39 @@ class AuthController {
       next(e);
     }
   }
-  public async refreshToken(req: Request, res: Response, next: NextFunction) {
+
+  public async refresh(req: Request, res: Response, next: NextFunction) {
     try {
       const jwtPayload = req.res.locals.jwtPayload as ITokenPayload;
       const oldTokensId = req.res.locals.oldTokensId as string;
-      const result = await authService.refreshToken(jwtPayload, oldTokensId);
+      const result = await authService.refresh(jwtPayload, oldTokensId);
       res.status(201).json(result);
-    } catch (error) {
-      next(error);
+    } catch (e) {
+      next(e);
     }
   }
+
+  public async logout(req: Request, res: Response, next: NextFunction) {
+    try {
+      const jwtPayload = req.res.locals.jwtPayload as ITokenPayload;
+      const tokenId = req.res.locals.tokenId as string;
+      await authService.logout(jwtPayload, tokenId);
+      res.sendStatus(204);
+    } catch (e) {
+      next(e);
+    }
+  }
+
   public async logoutAll(req: Request, res: Response, next: NextFunction) {
     try {
       const jwtPayload = req.res.locals.jwtPayload as ITokenPayload;
       await authService.logoutAll(jwtPayload);
       res.sendStatus(204);
-    } catch (error) {
-      next(error);
+    } catch (e) {
+      next(e);
     }
   }
-  public async logout(req: Request, res: Response, next: NextFunction) {
-    try {
-      const jwtPayload = req.res.locals.jwtPayload as ITokenPayload;
-      const tokenId = req.res.locals.jwtPayload.tokenId as string;
-      await authService.logout(jwtPayload, tokenId);
-      res.sendStatus(204);
-    } catch (error) {
-      next(error);
-    }
-  }
+
   public async forgotPassword(req: Request, res: Response, next: NextFunction) {
     try {
       const dto = req.body as IForgotSendEmail;
@@ -83,19 +86,21 @@ class AuthController {
       next(e);
     }
   }
-  public async verifyEmail(req: Request, res: Response, next: NextFunction) {
+
+  public async verify(req: Request, res: Response, next: NextFunction) {
     try {
       const jwtPayload = req.res.locals.jwtPayload as ITokenPayload;
-      await authService.verifyEmail(jwtPayload);
+      await authService.verify(jwtPayload);
       res.sendStatus(204);
     } catch (e) {
       next(e);
     }
   }
+
   public async changePassword(req: Request, res: Response, next: NextFunction) {
     try {
       const jwtPayload = req.res.locals.jwtPayload as ITokenPayload;
-      const dto = req.body as IChangePassword;
+      const dto = req.body as { oldPassword: string; newPassword: string };
       await authService.changePassword(jwtPayload, dto);
       res.sendStatus(204);
     } catch (e) {

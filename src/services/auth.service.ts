@@ -1,3 +1,4 @@
+import { configs } from "../configs/configs";
 import { ActionTokenTypeEnum } from "../enums/action-token-type.enum";
 import { EmailType } from "../enums/email-type.enum";
 import { ApiError } from "../errors/api-error";
@@ -29,12 +30,10 @@ class AuthService {
       role: user.role,
     });
     const actionToken = await tokenService.generateActionToken(
-      {
-        userId: user._id,
-        role: user.role,
-      },
+      { userId: user._id, role: user.role },
       ActionTokenTypeEnum.VERIFY_EMAIL,
     );
+
     await tokenRepository.create({ ...tokens, _userId: user._id });
     await actionTokenRepository.create({
       actionToken,
@@ -42,8 +41,9 @@ class AuthService {
       _userId: user._id,
     });
     await emailService.sendEmail(EmailType.WELCOME, dto.email, {
-      name: dto.username,
+      name: dto.name,
       actionToken,
+      frontUrl: configs.FRONTEND_URL,
     });
     return { user, tokens };
   }
@@ -72,13 +72,7 @@ class AuthService {
     return { user, tokens };
   }
 
-  private async isEmailExist(email: string): Promise<void> {
-    const user = await userRepository.getByParams({ email });
-    if (user) {
-      throw new ApiError("Email already exists", 409);
-    }
-  }
-  public async refreshToken(
+  public async refresh(
     payload: ITokenPayload,
     oldTokenId: string,
   ): Promise<ITokenPair> {
@@ -91,24 +85,28 @@ class AuthService {
     return tokens;
   }
 
-  public async logoutAll(payload: ITokenPayload): Promise<void> {
-    await tokenRepository.deleteByParams({ _userId: payload.userId });
-    const user = await userRepository.getOneUser(payload.userId);
+  public async logout(payload: ITokenPayload, tokenId: string): Promise<void> {
+    await tokenRepository.deleteById(tokenId);
+    const user = await userRepository.getById(payload.userId);
     await emailService.sendEmail(EmailType.LOGOUT, user.email, {
-      name: user.username,
+      name: user.name,
+      frontUrl: configs.FRONTEND_URL,
     });
   }
 
-  public async logout(payload: ITokenPayload, tokenId: string): Promise<void> {
-    await tokenRepository.deleteById(tokenId);
-    const user = await userRepository.getOneUser(payload.userId);
+  public async logoutAll(payload: ITokenPayload): Promise<void> {
+    await tokenRepository.deleteByParams({ _userId: payload.userId });
+    const user = await userRepository.getById(payload.userId);
     await emailService.sendEmail(EmailType.LOGOUT, user.email, {
-      name: user.username,
+      name: user.name,
+      frontUrl: configs.FRONTEND_URL,
     });
   }
+
   public async forgotPassword(dto: IForgotSendEmail): Promise<void> {
     const user = await userRepository.getByParams({ email: dto.email });
     if (!user) return;
+
     const actionToken = await tokenService.generateActionToken(
       { userId: user._id, role: user.role },
       ActionTokenTypeEnum.FORGOT_PASSWORD,
@@ -119,8 +117,9 @@ class AuthService {
       _userId: user._id,
     });
     await emailService.sendEmail(EmailType.FORGOT_PASSWORD, dto.email, {
-      name: user.username,
+      name: user.name,
       actionToken,
+      frontUrl: configs.FRONTEND_URL,
     });
   }
 
@@ -129,7 +128,7 @@ class AuthService {
     jwtPayload: ITokenPayload,
   ): Promise<void> {
     const password = await passwordService.hashPassword(dto.password);
-    await userRepository.update(jwtPayload.userId, { password });
+    await userRepository.updateById(jwtPayload.userId, { password });
 
     await actionTokenRepository.deleteByParams({
       _userId: jwtPayload.userId,
@@ -139,19 +138,22 @@ class AuthService {
       _userId: jwtPayload.userId,
     });
   }
-  public async verifyEmail(jwtPayload: ITokenPayload): Promise<void> {
-    await userRepository.update(jwtPayload.userId, { isVerified: true });
+
+  public async verify(jwtPayload: ITokenPayload): Promise<void> {
+    await userRepository.updateById(jwtPayload.userId, { isVerified: true });
+
     await actionTokenRepository.deleteByParams({
       _userId: jwtPayload.userId,
       type: ActionTokenTypeEnum.VERIFY_EMAIL,
     });
   }
+
   public async changePassword(
     jwtPayload: ITokenPayload,
     dto: { oldPassword: string; newPassword: string },
   ): Promise<void> {
     const [user, oldPasswords] = await Promise.all([
-      userRepository.getOneUser(jwtPayload.userId),
+      userRepository.getById(jwtPayload.userId),
       oldPasswordRepository.getByUserId(jwtPayload.userId),
     ]);
     const isPasswordCorrect = await passwordService.comparePassword(
@@ -176,12 +178,19 @@ class AuthService {
     );
 
     const password = await passwordService.hashPassword(dto.newPassword);
-    await userRepository.update(jwtPayload.userId, { password });
+    await userRepository.updateById(jwtPayload.userId, { password });
     await oldPasswordRepository.create({
       password: user.password,
       _userId: user._id,
     });
     await tokenRepository.deleteByParams({ _userId: jwtPayload.userId });
+  }
+
+  private async isEmailExist(email: string): Promise<void> {
+    const user = await userRepository.getByParams({ email });
+    if (user) {
+      throw new ApiError("Email already exists", 409);
+    }
   }
 }
 
